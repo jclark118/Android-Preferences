@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         inputText = findViewById(R.id.new_url);
         clearButton = findViewById(R.id.clear_all);
         addButton = findViewById(R.id.add_url);
@@ -73,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
      * @return true after the commit is saved
      */
     private boolean addStringToSet(Set<String> originalSet, String newUrl){
-        HashSet<String> prefList = new HashSet<>();
-        prefList.addAll(originalSet);
+        HashSet<String> prefList = new HashSet<>(originalSet);
         prefList.add(newUrl);
         return saveSet(prefList);
     }
@@ -159,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(removeStringFromSet(rowName)) {
-                    deleteRow(itemRow, rowName);
+                    deleteRow(itemRow);
                 }
             }
         });
@@ -167,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
         // Create text
         TextView nameText = new TextView(getApplicationContext());
         nameText.setText(text);
-        nameText.setId(Integer.parseInt("5"));
         nameText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -181,9 +177,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Delete a row from shared prefs and the Linear Layout
      * @param itemRow LinearLayout of the row to be deleted
-     * @param rowName text to be removed from shared prefs
      */
-    private void deleteRow(View itemRow, String rowName){
+    private void deleteRow(View itemRow){
         ((ViewManager)itemRow.getParent()).removeView(itemRow);
     }
 
