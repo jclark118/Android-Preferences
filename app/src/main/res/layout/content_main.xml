@@ -59,6 +59,15 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp" />
 
+        <LinearLayout
+            android:id="@+id/item_list_layout"
+            android:layout_margin="8dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </LinearLayout>
+
     </LinearLayout>
 
 

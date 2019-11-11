@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.HashSet;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private Button clearButton;
     private Button addButton;
+    private LinearLayout labelHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +38,11 @@ public class MainActivity extends AppCompatActivity {
         prefText = findViewById(R.id.pref_list);
         clearButton = findViewById(R.id.clear_all);
         addButton = findViewById(R.id.add_url);
+        labelHolder = findViewById(R.id.item_list_layout);
         prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
-        loadPrefs();
+//        loadPrefs();
         setButtonListeners();
+        setInitialPrefLabels();
     }
 
 
@@ -87,8 +91,19 @@ public class MainActivity extends AppCompatActivity {
         prefText.setText(readableList);
     }
 
+    /**
+     * Adds all the URLs from the loaded preferenes as labels in the view
+     */
+    private void setInitialPrefLabels(){
+        Set<String> existing = getStringSet(new HashSet<String>());
+        if(existing.size() > 0){
+            for(String str : existing){
+                addUrlView(str);
+            }
+        }
+    }
 
-    
+
     /**
      * Set button listeners for the Add Url button and Clear all button
      */
@@ -100,7 +115,8 @@ public class MainActivity extends AppCompatActivity {
                 Set<String> existing = getStringSet(new HashSet<String>());
                 boolean saved = addStringToSet(existing, newUrl);
                 if(saved){
-                    loadPrefs();
+//                    loadPrefs();
+                    addUrlView(newUrl);
                 }
             }
         });
@@ -109,9 +125,26 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 HashSet<String> blankSet = new HashSet<>();
                 saveSet(blankSet);
-                loadPrefs();
+//                loadPrefs();
+                // Remove all views from the Linear Layout holding the labels
+                if(labelHolder.getChildCount() > 0)
+                    labelHolder.removeAllViews();
             }
         });
+    }
+
+    /**
+     * Creates a textView with the given string, and adds it to the item list
+     * @param text String to add to the list
+     */
+    private void addUrlView(String text){
+        TextView valueTV = new TextView(getApplicationContext());
+        valueTV.setText(text);
+        valueTV.setId(Integer.parseInt("5"));
+        valueTV.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        labelHolder.addView(valueTV);
     }
 
 
