@@ -1,6 +1,7 @@
 package com.jclark.androidpreferences;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -11,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -22,7 +24,6 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private EditText inputText;
-    private TextView prefText;
     private SharedPreferences prefs;
     private Button clearButton;
     private Button addButton;
@@ -35,12 +36,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         inputText = findViewById(R.id.new_url);
-        prefText = findViewById(R.id.pref_list);
         clearButton = findViewById(R.id.clear_all);
         addButton = findViewById(R.id.add_url);
         labelHolder = findViewById(R.id.item_list_layout);
         prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
-//        loadPrefs();
         setButtonListeners();
         setInitialPrefLabels();
     }
@@ -80,16 +79,25 @@ public class MainActivity extends AppCompatActivity {
         return saveSet(prefList);
     }
 
-
-
     /**
-     * Gets the current value for the list from preferences and sets the prefText field to that value
+     * Gets the current shared prefs, copies it (leaving out the given string), then saves to shared prefs
+     * @param remove string to remove
+     * @return true once commit is finished
      */
-    private void loadPrefs(){
-        Set<String> prefList =  getStringSet(new HashSet<String>());
-        String readableList = String.join(", ", prefList);
-        prefText.setText(readableList);
+    private boolean removeStringFromSet(String remove){
+        Set<String> existing = getStringSet(new HashSet<String>());
+        HashSet<String> prefList = new HashSet<>();
+        if(existing.size() > 0){
+            for(String str : existing){
+                if(!str.equalsIgnoreCase(remove)){
+                    prefList.add(str);
+                }
+            }
+            return saveSet(prefList);
+        }
+        return false;
     }
+
 
     /**
      * Adds all the URLs from the loaded preferenes as labels in the view
@@ -115,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
                 Set<String> existing = getStringSet(new HashSet<String>());
                 boolean saved = addStringToSet(existing, newUrl);
                 if(saved){
-//                    loadPrefs();
                     addUrlView(newUrl);
                 }
             }
@@ -125,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 HashSet<String> blankSet = new HashSet<>();
                 saveSet(blankSet);
-//                loadPrefs();
                 // Remove all views from the Linear Layout holding the labels
                 if(labelHolder.getChildCount() > 0)
                     labelHolder.removeAllViews();
@@ -138,13 +144,47 @@ public class MainActivity extends AppCompatActivity {
      * @param text String to add to the list
      */
     private void addUrlView(String text){
-        TextView valueTV = new TextView(getApplicationContext());
-        valueTV.setText(text);
-        valueTV.setId(Integer.parseInt("5"));
-        valueTV.setLayoutParams(new LinearLayout.LayoutParams(
+        final String rowName = text;
+        // Create a new Layout to hold items
+        final LinearLayout itemRow = new LinearLayout(getApplicationContext());
+        itemRow.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.HORIZONTAL));
+
+        // Create delete button
+        Button deleteButton = new Button(getApplicationContext());
+        deleteButton.setText("Delete");
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(removeStringFromSet(rowName)) {
+                    deleteRow(itemRow, rowName);
+                }
+            }
+        });
+
+        // Create text
+        TextView nameText = new TextView(getApplicationContext());
+        nameText.setText(text);
+        nameText.setId(Integer.parseInt("5"));
+        nameText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
-        labelHolder.addView(valueTV);
+
+        // Add everything
+        itemRow.addView(deleteButton);
+        itemRow.addView(nameText);
+        labelHolder.addView(itemRow);
+    }
+
+    /**
+     * Delete a row from shared prefs and the Linear Layout
+     * @param itemRow LinearLayout of the row to be deleted
+     * @param rowName text to be removed from shared prefs
+     */
+    private void deleteRow(View itemRow, String rowName){
+        ((ViewManager)itemRow.getParent()).removeView(itemRow);
     }
 
 
