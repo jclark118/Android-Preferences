@@ -8,13 +8,16 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
+import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -148,10 +151,17 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.HORIZONTAL));
+        itemRow.setGravity(Gravity.CENTER);
+        itemRow.setPadding(0,0,0, 32);
 
         // Create delete button
-        Button deleteButton = new Button(getApplicationContext());
-        deleteButton.setText("Delete");
+        ImageButton deleteButton = new ImageButton(getApplicationContext());
+        deleteButton.setImageResource(R.drawable.ic_close_black_24dp);
+        deleteButton.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.rightMargin = 32;
+        deleteButton.setLayoutParams(params);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
