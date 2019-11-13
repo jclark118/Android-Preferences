@@ -59,14 +59,22 @@
             android:layout_marginHorizontal="16dp"
             android:text="Saved URLs" />
 
-        <LinearLayout
-            android:id="@+id/item_list_layout"
-            android:layout_margin="16dp"
-            android:orientation="vertical"
+        <ScrollView
+            android:id="@+id/scrollview_choices"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:fadeScrollbars="false">
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/item_list_layout"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 
