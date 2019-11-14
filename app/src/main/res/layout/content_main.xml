@@ -52,12 +52,29 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/lbl_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="16dp"
-            android:text="Saved URLs" />
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:text="Saved URLs" />
+
+            <TextView
+                android:id="@+id/delete_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_gravity="end"
+                android:text="Delete Selected" />
+
+        </LinearLayout>
 
         <ScrollView
             android:id="@+id/scrollview_choices"

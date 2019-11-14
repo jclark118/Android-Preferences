@@ -10,18 +10,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import android.text.Layout;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private Button clearButton;
     private Button addButton;
     private LinearLayout labelHolder;
+    private TextView deleteSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         clearButton = findViewById(R.id.clear_all);
         addButton = findViewById(R.id.add_url);
         labelHolder = findViewById(R.id.item_list_layout);
+        deleteSelected = findViewById(R.id.delete_selected);
         prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
         setButtonListeners();
         setInitialPrefLabels();
@@ -80,20 +89,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Removes the given string from shared prefs
      * Gets the current shared prefs, copies it (leaving out the given string), then saves to shared prefs
      * @param remove string to remove
      * @return true once commit is finished
      */
     private boolean removeStringFromSet(String remove){
-        Set<String> existing = getStringSet(new HashSet<String>());
-        HashSet<String> prefList = new HashSet<>();
-        if(existing.size() > 0){
-            for(String str : existing){
-                if(!str.equalsIgnoreCase(remove)){
-                    prefList.add(str);
+        if(!(remove == null || remove.isEmpty())) {
+            Set<String> existing = getStringSet(new HashSet<String>());
+            HashSet<String> prefList = new HashSet<>();
+            if (existing.size() > 0) {
+                for (String str : existing) {
+                    if (!str.equalsIgnoreCase(remove)) {
+                        prefList.add(str);
+                    }
                 }
+                return saveSet(prefList);
             }
-            return saveSet(prefList);
         }
         return false;
     }
@@ -113,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Set button listeners for the Add Url button and Clear all button
+     * Set button listeners for the Add Url, delete selected, and Clear all button
      */
     private void setButtonListeners(){
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -130,11 +142,34 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Save an empty set to shared preferences
                 HashSet<String> blankSet = new HashSet<>();
                 saveSet(blankSet);
                 // Remove all views from the Linear Layout holding the labels
                 if(labelHolder.getChildCount() > 0)
                     labelHolder.removeAllViews();
+            }
+        });
+        deleteSelected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Keep track of rows that need to be deleted
+                HashMap<String, LinearLayout> deleteViews = new HashMap<>();
+                // Find rows that are checked and note the row number
+                for (int i = 0; i < labelHolder.getChildCount(); i++) {
+                    LinearLayout itemRow = (LinearLayout)labelHolder.getChildAt(i);
+                    if(isItemRowChecked(itemRow)){
+                        deleteViews.put(getRowText(itemRow), itemRow);
+                    }
+                }
+                // Delete all checked rows
+                Iterator it = deleteViews.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    if(removeStringFromSet(pair.getKey().toString())){
+                        labelHolder.removeView((LinearLayout)pair.getValue());
+                    }
+                }
             }
         });
     }
@@ -160,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         deleteButton.setBackgroundColor(Color.TRANSPARENT);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = 32;
+        params.rightMargin = 64;
         deleteButton.setLayoutParams(params);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,6 +206,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Create checkbox
+        CheckBox check = new CheckBox(getApplicationContext());
+        check.setPadding(16,0,16,0);
+
         // Create text
         TextView nameText = new TextView(getApplicationContext());
         nameText.setText(text);
@@ -180,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Add everything
         itemRow.addView(deleteButton);
+        itemRow.addView(check);
         itemRow.addView(nameText);
         labelHolder.addView(itemRow);
     }
@@ -190,6 +230,37 @@ public class MainActivity extends AppCompatActivity {
      */
     private void deleteRow(View itemRow){
         ((ViewManager)itemRow.getParent()).removeView(itemRow);
+    }
+
+    /**
+     * Find the checkbox in the item row and tell us if it's checked
+     * @param itemRow linearLayout containing a checkbox
+     * @return true if the checkbox is checked
+     */
+    private boolean isItemRowChecked(LinearLayout itemRow){
+        for (int i = 0; i < itemRow.getChildCount(); i++) {
+            if(itemRow.getChildAt(i) instanceof CheckBox){
+                CheckBox check = (CheckBox) itemRow.getChildAt(i);
+                return check.isChecked();
+            }
+        }
+            return false;
+    }
+
+    /**
+     * Get the URL string from a row
+     * @param itemRow linear layout containing a checkbox and text field
+     * @return text from the text field
+     */
+    private String getRowText(LinearLayout itemRow){
+        for (int i = 0; i < itemRow.getChildCount(); i++) {
+            if (itemRow.getChildAt(i) instanceof TextView && !(itemRow.getChildAt(i) instanceof CheckBox)) {
+                TextView urlText = (TextView)itemRow.getChildAt(i);
+                String text = urlText.getText().toString();
+                return text;
+            }
+        }
+        return null;
     }
 
 
