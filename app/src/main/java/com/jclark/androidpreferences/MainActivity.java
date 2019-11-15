@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private Button clearButton;
     private Button addButton;
     private LinearLayout labelHolder;
-    private TextView deleteSelected;
+    private Button deleteSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,26 +189,26 @@ public class MainActivity extends AppCompatActivity {
         itemRow.setGravity(Gravity.CENTER);
         itemRow.setPadding(0,0,0, 32);
 
-        // Create delete button
-        ImageButton deleteButton = new ImageButton(getApplicationContext());
-        deleteButton.setImageResource(R.drawable.ic_close_black_24dp);
-        deleteButton.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = 64;
-        deleteButton.setLayoutParams(params);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(removeStringFromSet(rowName)) {
-                    deleteRow(itemRow);
-                }
-            }
-        });
+//        // Create delete button
+//        ImageButton deleteButton = new ImageButton(getApplicationContext());
+//        deleteButton.setImageResource(R.drawable.ic_close_black_24dp);
+//        deleteButton.setBackgroundColor(Color.TRANSPARENT);
+//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+//                LinearLayout.LayoutParams.WRAP_CONTENT);
+//        params.rightMargin = 64;
+//        deleteButton.setLayoutParams(params);
+//        deleteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if(removeStringFromSet(rowName)) {
+//                    deleteRow(itemRow);
+//                }
+//            }
+//        });
 
         // Create checkbox
         CheckBox check = new CheckBox(getApplicationContext());
-        check.setPadding(16,0,16,0);
+        check.setPadding(16,0,64,0);
 
         // Create text
         TextView nameText = new TextView(getApplicationContext());
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // Add everything
-        itemRow.addView(deleteButton);
+//        itemRow.addView(deleteButton);
         itemRow.addView(check);
         itemRow.addView(nameText);
         labelHolder.addView(itemRow);
